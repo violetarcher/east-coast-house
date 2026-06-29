@@ -1,0 +1,38 @@
+[
+    { "user": "user:*",               "relation": "can_view",          "object": "service_category:bathroom"   },
+    { "user": "user:*",               "relation": "can_view",          "object": "service_category:windows"    },
+    { "user": "user:*",               "relation": "can_view",          "object": "service_category:doors"      },
+    { "user": "user:*",               "relation": "can_view",          "object": "service_category:flooring"   },
+
+    { "user": "service_category:bathroom", "relation": "category",     "object": "service:full-bathroom-remodel"      },
+    { "user": "service_category:bathroom", "relation": "category",     "object": "service:bathtub-replacement"        },
+    { "user": "service_category:bathroom", "relation": "category",     "object": "service:shower-replacement"         },
+    { "user": "service_category:bathroom", "relation": "category",     "object": "service:walk-in-conversion"         },
+    { "user": "service_category:windows",  "relation": "category",     "object": "service:double-hung-windows"        },
+    { "user": "service_category:windows",  "relation": "category",     "object": "service:casement-windows"           },
+    { "user": "service_category:windows",  "relation": "category",     "object": "service:bay-bow-windows"            },
+    { "user": "service_category:doors",    "relation": "category",     "object": "service:fiberglass-entry-door"      },
+    { "user": "service_category:doors",    "relation": "category",     "object": "service:steel-entry-door"           },
+    { "user": "service_category:doors",    "relation": "category",     "object": "service:patio-french-door"          },
+    { "user": "service_category:flooring", "relation": "category",     "object": "service:lvp-flooring"               },
+    { "user": "service_category:flooring", "relation": "category",     "object": "service:engineered-hardwood"        },
+
+    { "user": "user:james",           "relation": "homeowner",         "object": "property:oak-street"         },
+    { "user": "user:sarah",           "relation": "co_homeowner",      "object": "property:oak-street"         },
+    { "user": "user:david",           "relation": "property_manager",  "object": "property:oak-street"         },
+    { "user": "user:emma",            "relation": "renter",            "object": "property:oak-street"         },
+
+    { "user": "user:lisa",            "relation": "homeowner",         "object": "property:elm-ave"            },
+    { "user": "user:david",           "relation": "property_manager",  "object": "property:elm-ave"            },
+
+    { "user": "property:oak-street",  "relation": "property",          "object": "project:oak-bathroom-remodel"},
+    { "user": "property:elm-ave",     "relation": "property",          "object": "project:elm-window-replace"  },
+
+    { "user": "project:oak-bathroom-remodel", "relation": "project",   "object": "quote:oak-bathroom-q1"      },
+    { "user": "project:elm-window-replace",   "relation": "project",   "object": "quote:elm-windows-q1"       },
+
+    { "user": "property:oak-street",  "relation": "property",          "object": "consultation:oak-consult-1"  },
+    { "user": "property:elm-ave",     "relation": "property",          "object": "consultation:elm-consult-1"  },
+
+    { "user": "user:maya",            "relation": "owner",             "object": "home_assessment:maya-scan-1" }
+]

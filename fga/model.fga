@@ -1,0 +1,61 @@
+model
+  schema 1.1
+
+type user
+
+type service_category
+  relations
+    define can_view: [user:*]
+
+type service
+  relations
+    define category: [service_category]
+    define can_view: can_view from category
+
+type home_assessment
+  relations
+    define owner: [user]
+    define can_view: owner
+    define can_manage: owner
+
+type property
+  relations
+    define homeowner:        [user]
+    define co_homeowner:     [user]
+    define authorized_rep:   [user with time_bound]
+    define property_manager: [user]
+    define renter:           [user]
+
+    define can_view: homeowner or co_homeowner or authorized_rep or property_manager or renter
+    define can_book_consultation: homeowner or co_homeowner or authorized_rep or property_manager
+    define can_view_financials: homeowner or co_homeowner or authorized_rep
+    define can_approve_work: homeowner or co_homeowner or authorized_rep
+    define can_cancel_project: homeowner or authorized_rep
+    define can_manage_users: homeowner
+    define can_delete: homeowner
+
+type consultation
+  relations
+    define property: [property]
+    define can_view:   can_view from property
+    define can_book:   can_book_consultation from property
+    define can_cancel: can_book_consultation from property
+
+type project
+  relations
+    define property: [property]
+    define can_view:            can_view from property
+    define can_manage:          can_book_consultation from property
+    define can_view_financials: can_view_financials from property
+    define can_approve_work:    can_approve_work from property
+    define can_cancel:          can_cancel_project from property
+
+type quote
+  relations
+    define project: [project]
+    define can_view:    can_view_financials from project
+    define can_approve: can_approve_work from project
+
+condition time_bound(current_time: timestamp, grant_expires_at: timestamp) {
+  current_time < grant_expires_at
+}

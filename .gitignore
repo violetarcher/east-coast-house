@@ -1,0 +1,5 @@
+# FGA credentials — never commit
+.env
+.env.*
+
+# Next.js app has its own .gitignore for demo/

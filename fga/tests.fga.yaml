@@ -1,0 +1,489 @@
+---
+# West Shore Home — FGA Model Tests
+# Personas:
+#   maya      = soft customer (no property tuples)
+#   james     = homeowner (oak-street)
+#   sarah     = co-homeowner (oak-street)
+#   michael   = authorized_rep (oak-street, time-bound)
+#   david     = property_manager (oak-street AND elm-ave)
+#   emma      = renter (oak-street)
+#   lisa      = homeowner (elm-ave)
+
+model: |
+  model
+    schema 1.1
+
+    type user
+
+    type service_category
+      relations
+        define can_view: [user:*]
+
+    type service
+      relations
+        define category: [service_category]
+        define can_view: can_view from category
+
+    type home_assessment
+      relations
+        define owner: [user]
+        define can_view: owner
+        define can_manage: owner
+
+    type property
+      relations
+        define homeowner:        [user]
+        define co_homeowner:     [user]
+        define authorized_rep:   [user with time_bound]
+        define property_manager: [user]
+        define renter:           [user]
+
+        define can_view: homeowner or co_homeowner or authorized_rep or property_manager or renter
+        define can_book_consultation: homeowner or co_homeowner or authorized_rep or property_manager
+        define can_view_financials: homeowner or co_homeowner or authorized_rep
+        define can_approve_work: homeowner or co_homeowner or authorized_rep
+        define can_cancel_project: homeowner or authorized_rep
+        define can_manage_users: homeowner
+        define can_delete: homeowner
+
+    type consultation
+      relations
+        define property: [property]
+        define can_view:   can_view from property
+        define can_book:   can_book_consultation from property
+        define can_cancel: can_book_consultation from property
+
+    type project
+      relations
+        define property: [property]
+        define can_view:            can_view from property
+        define can_manage:          can_book_consultation from property
+        define can_view_financials: can_view_financials from property
+        define can_approve_work:    can_approve_work from property
+        define can_cancel:          can_cancel_project from property
+
+    type quote
+      relations
+        define project: [project]
+        define can_view:    can_view_financials from project
+        define can_approve: can_approve_work from project
+
+    condition time_bound(current_time: timestamp, grant_expires_at: timestamp) {
+      current_time < grant_expires_at
+    }
+
+tuples:
+  # Service categories: publicly visible via wildcard
+  - user: "user:*"
+    relation: can_view
+    object: service_category:bathroom
+
+  - user: "user:*"
+    relation: can_view
+    object: service_category:windows
+
+  - user: "user:*"
+    relation: can_view
+    object: service_category:doors
+
+  - user: "user:*"
+    relation: can_view
+    object: service_category:flooring
+
+  # Link test service to its category
+  - user: service_category:bathroom
+    relation: category
+    object: service:bathroom-standard
+
+  # Property: 123 Oak Street
+  - user: user:james
+    relation: homeowner
+    object: property:oak-street
+
+  - user: user:sarah
+    relation: co_homeowner
+    object: property:oak-street
+
+  - user: user:michael
+    relation: authorized_rep
+    object: property:oak-street
+    condition:
+      name: time_bound
+      context:
+        grant_expires_at: "2026-09-30T23:59:59Z"
+
+  - user: user:david
+    relation: property_manager
+    object: property:oak-street
+
+  - user: user:emma
+    relation: renter
+    object: property:oak-street
+
+  # Property: 456 Elm Ave
+  - user: user:lisa
+    relation: homeowner
+    object: property:elm-ave
+
+  - user: user:david
+    relation: property_manager
+    object: property:elm-ave
+
+  # Projects
+  - user: property:oak-street
+    relation: property
+    object: project:oak-bathroom
+
+  - user: property:elm-ave
+    relation: property
+    object: project:elm-windows
+
+  # Quotes
+  - user: project:oak-bathroom
+    relation: project
+    object: quote:oak-bathroom-q1
+
+  - user: project:elm-windows
+    relation: project
+    object: quote:elm-windows-q1
+
+  # Consultation
+  - user: property:oak-street
+    relation: property
+    object: consultation:oak-consult-1
+
+  # Home assessment (soft customer)
+  - user: user:maya
+    relation: owner
+    object: home_assessment:maya-scan-1
+
+tests:
+  # ─── Services: publicly visible to everyone ───────────────────────────────
+
+  - name: "Services are visible to soft customer (no property)"
+    check:
+      - user: user:maya
+        object: service:bathroom-standard
+        assertions:
+          can_view: true
+
+  - name: "Services are visible to hard customer"
+    check:
+      - user: user:james
+        object: service:bathroom-standard
+        assertions:
+          can_view: true
+
+  # ─── Home assessment: owner-only ──────────────────────────────────────────
+
+  - name: "Soft customer can view and manage own assessment"
+    check:
+      - user: user:maya
+        object: home_assessment:maya-scan-1
+        assertions:
+          can_view: true
+          can_manage: true
+
+  - name: "Other users cannot access soft customer's assessment"
+    check:
+      - user: user:james
+        object: home_assessment:maya-scan-1
+        assertions:
+          can_view: false
+          can_manage: false
+
+  # ─── Soft customer: no property access ────────────────────────────────────
+
+  - name: "Soft customer denied all property access"
+    check:
+      - user: user:maya
+        object: property:oak-street
+        assertions:
+          can_view: false
+          can_book_consultation: false
+          can_view_financials: false
+          can_approve_work: false
+          can_cancel_project: false
+          can_manage_users: false
+          can_delete: false
+
+  - name: "Soft customer denied project access"
+    check:
+      - user: user:maya
+        object: project:oak-bathroom
+        assertions:
+          can_view: false
+          can_manage: false
+          can_view_financials: false
+          can_approve_work: false
+          can_cancel: false
+
+  # ─── Homeowner: full access ────────────────────────────────────────────────
+
+  - name: "Homeowner has full property permissions"
+    check:
+      - user: user:james
+        object: property:oak-street
+        assertions:
+          can_view: true
+          can_book_consultation: true
+          can_view_financials: true
+          can_approve_work: true
+          can_cancel_project: true
+          can_manage_users: true
+          can_delete: true
+
+  - name: "Homeowner can view and approve quote"
+    check:
+      - user: user:james
+        object: quote:oak-bathroom-q1
+        assertions:
+          can_view: true
+          can_approve: true
+
+  - name: "Homeowner can manage and cancel project"
+    check:
+      - user: user:james
+        object: project:oak-bathroom
+        assertions:
+          can_view: true
+          can_manage: true
+          can_view_financials: true
+          can_approve_work: true
+          can_cancel: true
+
+  # ─── Co-Homeowner: near-full, no delete/cancel/manage_users ───────────────
+
+  - name: "Co-homeowner has most permissions"
+    check:
+      - user: user:sarah
+        object: property:oak-street
+        assertions:
+          can_view: true
+          can_book_consultation: true
+          can_view_financials: true
+          can_approve_work: true
+
+  - name: "Co-homeowner cannot cancel, delete, or manage users"
+    check:
+      - user: user:sarah
+        object: property:oak-street
+        assertions:
+          can_cancel_project: false
+          can_manage_users: false
+          can_delete: false
+
+  - name: "Co-homeowner can view and approve quotes"
+    check:
+      - user: user:sarah
+        object: quote:oak-bathroom-q1
+        assertions:
+          can_view: true
+          can_approve: true
+
+  - name: "Co-homeowner cannot cancel project"
+    check:
+      - user: user:sarah
+        object: project:oak-bathroom
+        assertions:
+          can_cancel: false
+
+  # ─── Authorized Rep: time-bound temporal access ───────────────────────────
+
+  - name: "Authorized Rep has broad access within valid time window"
+    check:
+      - user: user:michael
+        object: property:oak-street
+        context:
+          current_time: "2026-07-01T10:00:00Z"
+        assertions:
+          can_view: true
+          can_book_consultation: true
+          can_view_financials: true
+          can_approve_work: true
+          can_cancel_project: true
+
+  - name: "Authorized Rep cannot manage users or delete property"
+    check:
+      - user: user:michael
+        object: property:oak-street
+        context:
+          current_time: "2026-07-01T10:00:00Z"
+        assertions:
+          can_manage_users: false
+          can_delete: false
+
+  - name: "Authorized Rep can approve quote within valid period"
+    check:
+      - user: user:michael
+        object: quote:oak-bathroom-q1
+        context:
+          current_time: "2026-07-01T10:00:00Z"
+        assertions:
+          can_view: true
+          can_approve: true
+
+  - name: "Authorized Rep denied after expiry"
+    check:
+      - user: user:michael
+        object: property:oak-street
+        context:
+          current_time: "2026-10-01T10:00:00Z"
+        assertions:
+          can_view: false
+          can_book_consultation: false
+          can_view_financials: false
+          can_approve_work: false
+          can_cancel_project: false
+
+  - name: "Authorized Rep denied on quote after expiry"
+    check:
+      - user: user:michael
+        object: quote:oak-bathroom-q1
+        context:
+          current_time: "2026-10-01T10:00:00Z"
+        assertions:
+          can_view: false
+          can_approve: false
+
+  # ─── Property Manager: operational only ───────────────────────────────────
+
+  - name: "Property Manager can view and schedule work"
+    check:
+      - user: user:david
+        object: property:oak-street
+        assertions:
+          can_view: true
+          can_book_consultation: true
+
+  - name: "Property Manager cannot access financials or approve work"
+    check:
+      - user: user:david
+        object: property:oak-street
+        assertions:
+          can_view_financials: false
+          can_approve_work: false
+          can_cancel_project: false
+          can_manage_users: false
+          can_delete: false
+
+  - name: "Property Manager cannot view or approve quote"
+    check:
+      - user: user:david
+        object: quote:oak-bathroom-q1
+        assertions:
+          can_view: false
+          can_approve: false
+
+  - name: "Property Manager can manage project schedule"
+    check:
+      - user: user:david
+        object: project:oak-bathroom
+        assertions:
+          can_view: true
+          can_manage: true
+          can_view_financials: false
+          can_approve_work: false
+          can_cancel: false
+
+  # ─── Renter: view-only ────────────────────────────────────────────────────
+
+  - name: "Renter can only view property"
+    check:
+      - user: user:emma
+        object: property:oak-street
+        assertions:
+          can_view: true
+          can_book_consultation: false
+          can_view_financials: false
+          can_approve_work: false
+          can_cancel_project: false
+          can_manage_users: false
+          can_delete: false
+
+  - name: "Renter can view project status but not manage or see financials"
+    check:
+      - user: user:emma
+        object: project:oak-bathroom
+        assertions:
+          can_view: true
+          can_manage: false
+          can_view_financials: false
+          can_cancel: false
+
+  - name: "Renter cannot see quotes"
+    check:
+      - user: user:emma
+        object: quote:oak-bathroom-q1
+        assertions:
+          can_view: false
+          can_approve: false
+
+  # ─── Property scoping: David has NO financial access on either property ────
+
+  - name: "Property Manager scoped: David cannot see Oak Street financials"
+    check:
+      - user: user:david
+        object: quote:oak-bathroom-q1
+        assertions:
+          can_view: false
+
+  - name: "Property Manager scoped: David cannot see Elm Ave financials"
+    check:
+      - user: user:david
+        object: quote:elm-windows-q1
+        assertions:
+          can_view: false
+
+  - name: "Property Manager scoped: David can manage both properties' projects"
+    check:
+      - user: user:david
+        object: project:oak-bathroom
+        assertions:
+          can_view: true
+          can_manage: true
+      - user: user:david
+        object: project:elm-windows
+        assertions:
+          can_view: true
+          can_manage: true
+
+  # ─── Cross-property isolation: James has zero access to Elm Ave ───────────
+
+  - name: "Homeowner has zero access to another property"
+    check:
+      - user: user:james
+        object: property:elm-ave
+        assertions:
+          can_view: false
+          can_book_consultation: false
+          can_view_financials: false
+          can_manage_users: false
+          can_delete: false
+
+  - name: "Homeowner cannot access another property's quote"
+    check:
+      - user: user:james
+        object: quote:elm-windows-q1
+        assertions:
+          can_view: false
+          can_approve: false
+
+  # ─── Lisa: homeowner of Elm Ave only ──────────────────────────────────────
+
+  - name: "Lisa has full access to Elm Ave"
+    check:
+      - user: user:lisa
+        object: property:elm-ave
+        assertions:
+          can_view: true
+          can_view_financials: true
+          can_approve_work: true
+          can_delete: true
+
+  - name: "Lisa has no access to Oak Street"
+    check:
+      - user: user:lisa
+        object: property:oak-street
+        assertions:
+          can_view: false

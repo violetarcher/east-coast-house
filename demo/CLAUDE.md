@@ -22,12 +22,14 @@ A customer-facing Auth0 FGA demo built for sales engineering. No authentication 
 ## File map
 
 ```
+diagrams.md              # Mermaid diagrams: ER, permissions matrix, flow sequences
+README.md                # Setup guide, demo flow, FGA seeding instructions
+
 fga/
   model.fga              # Authorization model (deployed)
   tests.fga.yaml         # 32 tests, 103 checks — run with: fga model test
   seed-tuples.json       # Seed data (static roles, service categories, property relationships)
   seed-michael-tuple.json # Michael's conditional tuple — deleted from store; he starts with no access
-  diagrams.md            # Mermaid diagrams: ER, permissions matrix, flow sequences
 
 demo/
   app/page.tsx           # Main page — persona state, FGA discovery, render routing

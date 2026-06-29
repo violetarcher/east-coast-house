@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "West Shore Home — Auth0 FGA Demo",
-  description: "Fine-grained authorization demo for West Shore Home",
+  title: "East Coast House — Auth0 FGA Demo",
+  description: "Fine-grained authorization demo for East Coast House",
 };
 
 export default function RootLayout({

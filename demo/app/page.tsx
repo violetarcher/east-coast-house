@@ -23,7 +23,7 @@ export default function Home() {
 
   // Restore saved persona after hydration
   useEffect(() => {
-    const saved = localStorage.getItem('wsh-demo-persona');
+    const saved = localStorage.getItem('ech-demo-persona');
     if (saved) {
       const found = PERSONAS.find((p) => p.id === saved);
       if (found) setPersona(found);
@@ -31,7 +31,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('wsh-demo-persona', persona.id);
+    localStorage.setItem('ech-demo-persona', persona.id);
   }, [persona.id]);
 
   const isMichael = persona.isAuthorizedRep === true;

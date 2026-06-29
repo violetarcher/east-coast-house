@@ -1,4 +1,4 @@
-# West Shore Home — FGA Data Model Diagrams
+# East Coast House — FGA Data Model Diagrams
 
 ---
 
@@ -118,7 +118,7 @@ The moment a soft customer converts, a single FGA tuple write creates the proper
 ```mermaid
 sequenceDiagram
     actor Maya as Maya (Soft Customer)
-    participant App as West Shore Home App
+    participant App as East Coast House App
     participant FGA as Auth0 FGA
 
     Maya->>App: Browse services (no auth check needed)
@@ -149,7 +149,7 @@ Demonstrates that a role on Property A grants zero access to Property B.
 ```mermaid
 sequenceDiagram
     actor David as David (Property Manager)
-    participant App as West Shore Home App
+    participant App as East Coast House App
     participant FGA as Auth0 FGA
 
     Note over FGA: Tuples in store:<br/>user:david | property_manager | property:oak-street<br/>user:david | property_manager | property:elm-ave
@@ -178,7 +178,7 @@ Time-bound delegation with condition context passed at check time.
 ```mermaid
 sequenceDiagram
     actor Michael as Michael (Auth Rep)
-    participant App as West Shore Home App
+    participant App as East Coast House App
     participant FGA as Auth0 FGA
 
     Note over FGA: Tuple:<br/>user:michael | authorized_rep | property:oak-street<br/>condition: grant_expires_at = 2026-09-30T23:59:59Z

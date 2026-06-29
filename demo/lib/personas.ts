@@ -114,7 +114,7 @@ export const SERVICE_CATALOG = [
     label: 'Bathroom Remodeling',
     icon: '🛁',
     services: [
-      { id: 'service:full-bathroom-remodel', label: 'Full Bathroom Remodel', desc: 'Complete gut renovation with vanity, toilet & WSH waterproof wall system' },
+      { id: 'service:full-bathroom-remodel', label: 'Full Bathroom Remodel', desc: 'Complete gut renovation with vanity, toilet & ECH waterproof wall system' },
       { id: 'service:bathtub-replacement', label: 'Bathtub Replacement', desc: 'New tub with surround, completed in 1 day' },
       { id: 'service:shower-replacement', label: 'Shower Replacement', desc: 'Custom shower with exclusive waterproof panels' },
       { id: 'service:walk-in-conversion', label: 'Walk-In Conversion', desc: 'Convert tub to walk-in shower for accessibility' },

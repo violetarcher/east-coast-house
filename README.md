@@ -56,7 +56,7 @@ Michael Torres starts with **no** delegated access — grant it live during the 
 
 1. **Select Maya** — soft customer, can browse services and view her home assessment, no property access
 2. **Convert Maya** — writes `homeowner` tuple, property dashboard unlocks immediately
-3. **Select James** — homeowner on 123 Oak Street, expand ⚖️ Authorized Representative to delegate Michael
+3. **Select Sarah** — homeowner on 123 Oak Street, expand ⚖️ Authorized Representative to delegate Michael
 4. **Select Michael** — sees delegated properties; toggle ⏱ Active/Expired to show time-bound condition
 5. **Select David** — property_manager on two properties, demonstrating multi-property scoping
 6. **Reset** — deletes all demo-written tuples, returns to seed state

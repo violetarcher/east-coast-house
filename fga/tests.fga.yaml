@@ -2,8 +2,8 @@
 # East Coast House — FGA Model Tests
 # Personas:
 #   maya      = soft customer (no property tuples)
-#   james     = homeowner (oak-street)
-#   sarah     = co-homeowner (oak-street)
+#   sarah     = homeowner (oak-street)
+#   james     = co-homeowner (oak-street)
 #   michael   = authorized_rep (oak-street, time-bound)
 #   david     = property_manager (oak-street AND elm-ave)
 #   emma      = renter (oak-street)
@@ -96,11 +96,11 @@ tuples:
     object: service:bathroom-standard
 
   # Property: 123 Oak Street
-  - user: user:james
+  - user: user:sarah
     relation: homeowner
     object: property:oak-street
 
-  - user: user:sarah
+  - user: user:james
     relation: co_homeowner
     object: property:oak-street
 
@@ -169,7 +169,7 @@ tests:
 
   - name: "Services are visible to hard customer"
     check:
-      - user: user:james
+      - user: user:sarah
         object: service:bathroom-standard
         assertions:
           can_view: true
@@ -186,7 +186,7 @@ tests:
 
   - name: "Other users cannot access soft customer's assessment"
     check:
-      - user: user:james
+      - user: user:sarah
         object: home_assessment:maya-scan-1
         assertions:
           can_view: false
@@ -222,7 +222,7 @@ tests:
 
   - name: "Homeowner has full property permissions"
     check:
-      - user: user:james
+      - user: user:sarah
         object: property:oak-street
         assertions:
           can_view: true
@@ -235,7 +235,7 @@ tests:
 
   - name: "Homeowner can view and approve quote"
     check:
-      - user: user:james
+      - user: user:sarah
         object: quote:oak-bathroom-q1
         assertions:
           can_view: true
@@ -243,7 +243,7 @@ tests:
 
   - name: "Homeowner can manage and cancel project"
     check:
-      - user: user:james
+      - user: user:sarah
         object: project:oak-bathroom
         assertions:
           can_view: true
@@ -256,7 +256,7 @@ tests:
 
   - name: "Co-homeowner has most permissions"
     check:
-      - user: user:sarah
+      - user: user:james
         object: property:oak-street
         assertions:
           can_view: true
@@ -266,7 +266,7 @@ tests:
 
   - name: "Co-homeowner cannot cancel, delete, or manage users"
     check:
-      - user: user:sarah
+      - user: user:james
         object: property:oak-street
         assertions:
           can_cancel_project: false
@@ -275,7 +275,7 @@ tests:
 
   - name: "Co-homeowner can view and approve quotes"
     check:
-      - user: user:sarah
+      - user: user:james
         object: quote:oak-bathroom-q1
         assertions:
           can_view: true
@@ -283,7 +283,7 @@ tests:
 
   - name: "Co-homeowner cannot cancel project"
     check:
-      - user: user:sarah
+      - user: user:james
         object: project:oak-bathroom
         assertions:
           can_cancel: false
@@ -452,7 +452,7 @@ tests:
 
   - name: "Homeowner has zero access to another property"
     check:
-      - user: user:james
+      - user: user:sarah
         object: property:elm-ave
         assertions:
           can_view: false
@@ -463,7 +463,7 @@ tests:
 
   - name: "Homeowner cannot access another property's quote"
     check:
-      - user: user:james
+      - user: user:sarah
         object: quote:elm-windows-q1
         assertions:
           can_view: false

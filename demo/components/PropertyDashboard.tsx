@@ -46,11 +46,13 @@ export default function PropertyDashboard({ userId, property, isAuthorizedRep, g
   const [loading, setLoading] = useState(false);
   const [simExpired, setSimExpired] = useState(false);
 
-  const proj = PROPERTY_PROJECTS[property] ?? PROPERTY_PROJECTS['property:oak-street'];
+  const proj = PROPERTY_PROJECTS[property] ?? null;
 
   const runChecks = useCallback(async () => {
     setLoading(true);
-    const checkDefs = PERMISSION_CHECKS(property, proj.projectId, proj.quoteId);
+    const checkDefs = proj
+      ? PERMISSION_CHECKS(property, proj.projectId, proj.quoteId)
+      : PERMISSION_CHECKS(property, '', '').slice(0, 7);
     const context = isAuthorizedRep
       ? { current_time: simExpired ? '2026-10-01T10:00:00Z' : '2026-07-01T10:00:00Z' }
       : undefined;
@@ -85,7 +87,7 @@ export default function PropertyDashboard({ userId, property, isAuthorizedRep, g
     } finally {
       setLoading(false);
     }
-  }, [userId, property, isAuthorizedRep, simExpired, proj.projectId, proj.quoteId, onLog]);
+  }, [userId, property, isAuthorizedRep, simExpired, proj, onLog]);
 
   useEffect(() => { runChecks(); }, [runChecks]);
 
@@ -94,7 +96,7 @@ export default function PropertyDashboard({ userId, property, isAuthorizedRep, g
       <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
         <div>
           <h3 className="font-semibold text-gray-900">{PROPERTY_LABELS[property] ?? property}</h3>
-          <p className="text-xs text-gray-500 mt-0.5">Active project: {proj.label}</p>
+          {proj && <p className="text-xs text-gray-500 mt-0.5">Active project: {proj.label}</p>}
         </div>
         <div className="flex items-center gap-2">
           {isAuthorizedRep && (

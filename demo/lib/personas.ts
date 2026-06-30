@@ -24,23 +24,23 @@ export const PERSONAS: Persona[] = [
     isSoftCustomer: true,
   },
   {
-    id: 'james',
-    name: 'James Whitmore',
+    id: 'sarah',
+    name: 'Sarah Whitmore',
     role: 'Homeowner',
     description: '123 Oak Street — full access, primary owner',
     property: 'property:oak-street',
-    avatar: 'JW',
-    color: 'bg-blue-600',
+    avatar: 'SW',
+    color: 'bg-indigo-500',
     isSoftCustomer: false,
   },
   {
-    id: 'sarah',
-    name: 'Sarah Whitmore',
+    id: 'james',
+    name: 'James Whitmore',
     role: 'Co-Homeowner',
     description: '123 Oak Street — secondary owner, no delete/cancel/manage users',
     property: 'property:oak-street',
-    avatar: 'SW',
-    color: 'bg-indigo-500',
+    avatar: 'JW',
+    color: 'bg-blue-600',
     isSoftCustomer: false,
   },
   {
@@ -93,7 +93,7 @@ export const PROPERTY_LABELS: Record<string, string> = {
 };
 
 export const AUTH_REP_PROPERTIES = [
-  { id: 'property:oak-street', label: '123 Oak Street', owner: 'James Whitmore', ownerRole: 'Homeowner' },
+  { id: 'property:oak-street', label: '123 Oak Street', owner: 'Sarah Whitmore', ownerRole: 'Homeowner' },
   { id: 'property:elm-ave',    label: '456 Elm Ave',    owner: 'Lisa Johnson',   ownerRole: 'Homeowner' },
 ];
 

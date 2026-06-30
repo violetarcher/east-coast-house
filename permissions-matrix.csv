@@ -1,0 +1,11 @@
+Permission,Soft Customer,Homeowner,Co-Homeowner,Auth Rep,Prop Manager,Renter
+can_view services (public),✅,✅,✅,✅,✅,✅
+can_view/manage own home assessment,✅,✅,✅,✅,✅,✅
+can_view (property/project/consult),❌,✅,✅,✅,✅,✅
+can_book_consultation,❌,✅,✅,✅,✅,❌
+can_manage (project scheduling),❌,✅,✅,✅,✅,❌
+can_view_financials (quotes),❌,✅,✅,✅,❌,❌
+can_approve_work (authorize project),❌,✅,✅,✅,❌,❌
+can_cancel_project,❌,✅,❌,✅,❌,❌
+can_manage_users (add/remove roles),❌,✅,❌,❌,❌,❌
+can_delete (close account),❌,✅,❌,❌,❌,❌

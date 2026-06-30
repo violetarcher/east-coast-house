@@ -135,20 +135,20 @@ export default function Home() {
           </div> */}
           <div>
             <h1 className="font-bold text-gray-900 leading-none">Remodeling Services</h1>
-            <p className="text-xs text-gray-500 leading-none mt-0.5">FGA Demo</p>
+            {/* <p className="text-xs text-gray-500 leading-none mt-0.5">FGA Demo</p> */}
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <span className="w-2 h-2 bg-green-400 rounded-full" />
             <span className="text-xs text-gray-500 font-mono">Store: 01KWA8T50MV62YTHNZV10ABG8B</span>
-          </div>
+          </div> */}
           <button
             onClick={handleReset}
             disabled={resetting}
             className="text-xs bg-gray-100 hover:bg-red-50 hover:text-red-700 hover:border-red-200 text-gray-500 border border-gray-200 px-3 py-1.5 rounded-lg font-medium transition-colors disabled:opacity-50"
           >
-            {resetting ? 'Resetting…' : '↺ Reset Demo'}
+            {resetting ? 'Resetting…' : '↺ Reset'}
           </button>
         </div>
       </header>
@@ -291,7 +291,7 @@ export default function Home() {
                       userId={persona.id}
                       property={propId}
                       isAuthorizedRep={false}
-                      grantingPersonaName={persona.name}
+                      grantingPersonaName={persona.role === 'Homeowner' ? persona.name : undefined}
                       onLog={addLog}
                     />
                   ))}

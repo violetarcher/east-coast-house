@@ -17,8 +17,8 @@
     { "user": "service_category:flooring", "relation": "category",     "object": "service:lvp-flooring"               },
     { "user": "service_category:flooring", "relation": "category",     "object": "service:engineered-hardwood"        },
 
-    { "user": "user:james",           "relation": "homeowner",         "object": "property:oak-street"         },
-    { "user": "user:sarah",           "relation": "co_homeowner",      "object": "property:oak-street"         },
+    { "user": "user:sarah",           "relation": "homeowner",         "object": "property:oak-street"         },
+    { "user": "user:james",           "relation": "co_homeowner",      "object": "property:oak-street"         },
     { "user": "user:david",           "relation": "property_manager",  "object": "property:oak-street"         },
     { "user": "user:emma",            "relation": "renter",            "object": "property:oak-street"         },
 

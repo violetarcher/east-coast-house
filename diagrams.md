@@ -8,8 +8,7 @@ How FGA types relate to one another. Arrows show `define X: [Y]` (direct) or `fr
 
 ```mermaid
 erDiagram
-    USER ||--o{ PROPERTY : "homeowner / co_homeowner / property_manager / renter"
-    USER ||--o{ PROPERTY : "authorized_rep (time_bound condition)"
+    USER ||--o{ PROPERTY : "homeowner / co_homeowner / authorized_rep / property_manager / renter"
     USER ||--o{ HOME_ASSESSMENT : "owner"
 
     SERVICE_CATEGORY ||--o{ SERVICE : "category"
@@ -71,41 +70,32 @@ erDiagram
 Which roles can perform which actions on a property and its resources.
 
 ```mermaid
-block-beta
-  columns 6
+flowchart LR
+    SC["Soft Customer"] --- SVC["services (public, user:* wildcard)"]
+    SC --- HA["home_assessment (owner-scoped)"]
 
-  block:roles:1
-    R["Role"]
-  end
-  block:h1:1
-    H["Homeowner"]
-  end
-  block:h2:1
-    CH["Co-Homeowner"]
-  end
-  block:h3:1
-    AR["Auth Rep"]
-  end
-  block:h4:1
-    PM["Prop Manager"]
-  end
-  block:h5:1
-    RN["Renter"]
-  end
+    PROP["property"]
+    PROP --- HO["Homeowner"]
+    PROP --- CO["Co-Homeowner"]
+    PROP --- AR["Auth Rep (time-bound)"]
+    PROP --- PM["Property Manager"]
+    PROP --- RN["Renter"]
 ```
 
-> The table below maps FGA computed permissions to each property role.
+> The table below maps FGA computed permissions to each role. Soft Customer has no property tuple — they access only public services and their own home assessments.
 
-| Permission | Homeowner | Co-Homeowner | Auth Rep | Prop Manager | Renter |
-|---|:---:|:---:|:---:|:---:|:---:|
-| `can_view` (property/project/consult) | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `can_book_consultation` | ✅ | ✅ | ✅ | ✅ | ❌ |
-| `can_manage` (project scheduling) | ✅ | ✅ | ✅ | ✅ | ❌ |
-| `can_view_financials` (quotes) | ✅ | ✅ | ✅ | ❌ | ❌ |
-| `can_approve_work` (authorize project) | ✅ | ✅ | ✅ | ❌ | ❌ |
-| `can_cancel_project` | ✅ | ❌ | ✅ | ❌ | ❌ |
-| `can_manage_users` (add/remove roles) | ✅ | ❌ | ❌ | ❌ | ❌ |
-| `can_delete` (close account) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Permission | Soft Customer | Homeowner | Co-Homeowner | Auth Rep | Prop Manager | Renter |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| `can_view` services (public) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `can_view/manage` own home assessment | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `can_view` (property/project/consult) | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `can_book_consultation` | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| `can_manage` (project scheduling) | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| `can_view_financials` (quotes) | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| `can_approve_work` (authorize project) | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| `can_cancel_project` | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ |
+| `can_manage_users` (add/remove roles) | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| `can_delete` (close account) | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
 
 > **Auth Rep note:** Tuple carries a `time_bound` condition with `grant_expires_at`. Access auto-denies after expiry even if tuple is not deleted. Revocation = tuple delete.
 
@@ -152,7 +142,7 @@ sequenceDiagram
     participant App as East Coast House App
     participant FGA as Auth0 FGA
 
-    Note over FGA: Tuples in store:<br/>user:david | property_manager | property:oak-street<br/>user:david | property_manager | property:elm-ave
+    Note over FGA: david = property_manager on oak-street AND elm-ave
 
     David->>App: View Oak Street project schedule
     App->>FGA: check(user:david, can_manage, project:oak-bathroom)
@@ -166,7 +156,7 @@ sequenceDiagram
     App->>FGA: check(user:david, can_view_financials, project:elm-windows)
     FGA-->>App: ❌ denied (property_manager excluded from financials)
 
-    Note over David,FGA: Property scoping is automatic —<br/>no application-level tenant filtering needed
+    Note over David,FGA: Property scoping is automatic — no app-level tenant filtering needed
 ```
 
 ---
@@ -181,16 +171,18 @@ sequenceDiagram
     participant App as East Coast House App
     participant FGA as Auth0 FGA
 
-    Note over FGA: Tuple:<br/>user:michael | authorized_rep | property:oak-street<br/>condition: grant_expires_at = 2026-09-30T23:59:59Z
+    Note over FGA: michael = authorized_rep on oak-street (expires 2026-09-30)
 
     Michael->>App: Approve quote (within valid period)
-    App->>FGA: check(user:michael, can_approve, quote:oak-bathroom-q1)<br/>context: { current_time: "2026-07-01T10:00:00Z" }
+    App->>FGA: check(user:michael, can_approve, quote:oak-bathroom-q1)
+    Note right of App: context: current_time = 2026-07-01
     FGA-->>App: ✅ allowed (time_bound condition satisfied)
 
     Note over Michael,FGA: Time advances past expiry...
 
     Michael->>App: Approve quote (after expiry)
-    App->>FGA: check(user:michael, can_approve, quote:oak-bathroom-q1)<br/>context: { current_time: "2026-10-01T10:00:00Z" }
+    App->>FGA: check(user:michael, can_approve, quote:oak-bathroom-q1)
+    Note right of App: context: current_time = 2026-10-01
     FGA-->>App: ❌ denied (grant_expires_at exceeded)
 
     Note over App,FGA: Homeowner revokes early via tuple delete
